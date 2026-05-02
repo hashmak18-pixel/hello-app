@@ -1,40 +1,107 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>App Layout</title>
+  <title>Finance Dashboard</title>
 </head>
 
-<body style="margin:0; font-family:Arial; display:flex; height:100vh;">
+<body style="margin:0; font-family:Arial, sans-serif; background:#eef2f7;">
 
-  <!-- Sidebar -->
-  <div style="width:220px; background:#1e293b; color:white; padding:20px;">
-    <h3>Menu</h3>
+  <div style="display:flex; height:100vh;">
 
-    <p onclick="showSection('payment')" style="cursor:pointer;">Record Payment</p>
-    <p onclick="showSection('report')" style="cursor:pointer;">Report</p>
-    <p onclick="showSection('invoice')" style="cursor:pointer;">Generate Invoice</p>
-    <p onclick="showSection('employeeReport')" style="cursor:pointer;">Employee Report</p>
-  </div>
+    <!-- Sidebar -->
+    <div style="width:240px; background:#111827; color:white; padding:24px;">
+      <h2 style="margin-top:0; margin-bottom:30px;">Finance App</h2>
 
-  <!-- Main Content -->
-  <div style="flex:1; padding:30px; background:#f1f5f9; color:#0f172a;">
+      <p onclick="showSection('payment')" style="cursor:pointer; padding:12px; border-radius:8px; background:#2563eb;">
+        Record Payment
+      </p>
 
-    <div id="payment">
-      <!-- You will add content -->
+      <p onclick="showSection('report')" style="cursor:pointer; padding:12px; border-radius:8px;">
+        Report
+      </p>
+
+      <p onclick="showSection('invoice')" style="cursor:pointer; padding:12px; border-radius:8px;">
+        Generate Invoice
+      </p>
+
+      <p onclick="showSection('employeeReport')" style="cursor:pointer; padding:12px; border-radius:8px;">
+        Employee Report
+      </p>
     </div>
 
-    <div id="report" style="display:none;">
-      <!-- You will add content -->
-    </div>
+    <!-- Main Content -->
+    <div style="flex:1; padding:35px;">
 
-    <div id="invoice" style="display:none;">
-      <!-- You will add content -->
-    </div>
+      <h1 style="margin-top:0; color:#111827;">Dashboard</h1>
+      <p style="color:#64748b;">Manage payments, invoices, reports, and employees.</p>
 
-    <div id="employeeReport" style="display:none;">
-      <!-- You will add content -->
-    </div>
+      <!-- Payment Section -->
+      <div id="payment" style="background:white; padding:25px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.08); max-width:500px;">
+        <h2 style="color:#111827;">Record Payment</h2>
 
+        <label style="color:#334155;">Amount</label><br>
+        <input placeholder="Enter amount" style="width:100%; padding:12px; margin:10px 0 20px; border:1px solid #cbd5e1; border-radius:8px;">
+
+        <button style="padding:12px 22px; border:none; border-radius:8px; background:#2563eb; color:white; cursor:pointer;">
+          Save Payment
+        </button>
+      </div>
+
+      <!-- Report Section -->
+      <div id="report" style="display:none; background:white; padding:25px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.08); max-width:600px;">
+        <h2 style="color:#111827;">Report</h2>
+
+        <div style="display:flex; gap:15px; flex-wrap:wrap;">
+          <div style="background:#eff6ff; padding:18px; border-radius:10px; flex:1;">
+            <p style="color:#64748b;">Monthly Revenue</p>
+            <h2 style="color:#2563eb;">₹50,000</h2>
+          </div>
+
+          <div style="background:#fef2f2; padding:18px; border-radius:10px; flex:1;">
+            <p style="color:#64748b;">Expenses</p>
+            <h2 style="color:#dc2626;">₹20,000</h2>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoice Section -->
+      <div id="invoice" style="display:none; background:white; padding:25px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.08); max-width:500px;">
+        <h2 style="color:#111827;">Generate Invoice</h2>
+
+        <label style="color:#334155;">Client Name</label><br>
+        <input placeholder="Enter client name" style="width:100%; padding:12px; margin:10px 0 20px; border:1px solid #cbd5e1; border-radius:8px;">
+
+        <label style="color:#334155;">Amount</label><br>
+        <input placeholder="Enter amount" style="width:100%; padding:12px; margin:10px 0 20px; border:1px solid #cbd5e1; border-radius:8px;">
+
+        <button style="padding:12px 22px; border:none; border-radius:8px; background:#16a34a; color:white; cursor:pointer;">
+          Create Invoice
+        </button>
+      </div>
+
+      <!-- Employee Report Section -->
+      <div id="employeeReport" style="display:none; background:white; padding:25px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.08); max-width:600px;">
+        <h2 style="color:#111827;">Employee Report</h2>
+
+        <div style="display:flex; gap:15px; flex-wrap:wrap;">
+          <div style="background:#f8fafc; padding:18px; border-radius:10px; flex:1;">
+            <p style="color:#64748b;">Total Employees</p>
+            <h2 style="color:#111827;">25</h2>
+          </div>
+
+          <div style="background:#ecfdf5; padding:18px; border-radius:10px; flex:1;">
+            <p style="color:#64748b;">Active</p>
+            <h2 style="color:#16a34a;">22</h2>
+          </div>
+
+          <div style="background:#fff7ed; padding:18px; border-radius:10px; flex:1;">
+            <p style="color:#64748b;">On Leave</p>
+            <h2 style="color:#ea580c;">3</h2>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <script>
