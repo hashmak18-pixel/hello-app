@@ -1,19 +1,31 @@
 <!DOCTYPE html>
 <html>
-  <body style="text-align:center; margin-top:50px; font-family:sans-serif;">
+<head>
+  <title>AI App</title>
+</head>
 
-    <h1>My First App 🚀</h1>
+<body style="margin:0; font-family:Arial, sans-serif; background:#0f172a; color:white; display:flex; justify-content:center; align-items:center; height:100vh;">
 
-    <button onclick="getMessage()">Click Me</button>
-    <h2 id="msg"></h2>
+  <div style="background:#1e293b; padding:40px; border-radius:16px; text-align:center; width:300px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+    
+    <h1 style="margin-bottom:20px;">🚀 Hello App</h1>
 
-    <script>
-      async function getMessage() {
-        const res = await fetch('/api/hello');
-        const data = await res.json();
-        document.getElementById("msg").innerText = data.message;
-      }
-    </script>
+    <button onclick="getMessage()" 
+      style="padding:12px 20px; border:none; border-radius:8px; background:#3b82f6; color:white; font-size:16px; cursor:pointer;">
+      Click Me
+    </button>
 
-  </body>
+    <h2 id="msg" style="margin-top:20px; color:#38bdf8;"></h2>
+
+  </div>
+
+  <script>
+    async function getMessage() {
+      const res = await fetch('/api/hello');
+      const data = await res.json();
+      document.getElementById("msg").innerText = data.message;
+    }
+  </script>
+
+</body>
 </html>
