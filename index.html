@@ -4,26 +4,40 @@
   <title>AI App</title>
 </head>
 
-<body style="margin:0; font-family:Arial, sans-serif; background:#0f172a; color:white; display:flex; justify-content:center; align-items:center; height:100vh;">
+<body style="margin:0; font-family:Arial, sans-serif; background:linear-gradient(135deg,#0f172a,#1e293b); color:white; display:flex; justify-content:center; align-items:center; height:100vh;">
 
-  <div style="background:#1e293b; padding:40px; border-radius:16px; text-align:center; width:300px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+  <div style="background:#1e293b; padding:40px; border-radius:16px; width:350px; text-align:center; box-shadow:0 15px 40px rgba(0,0,0,0.6);">
     
-    <h1 style="margin-bottom:20px;">🚀 Hello App</h1>
+    <h1 style="margin-bottom:10px;">🚀 AI App</h1>
+    <p style="color:#94a3b8; margin-bottom:20px;">Generate your greeting</p>
 
+    <!-- Input -->
+    <input id="nameInput" placeholder="Enter your name"
+      style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:15px; outline:none;" />
+
+    <!-- Button -->
     <button onclick="getMessage()" 
-      style="padding:12px 20px; border:none; border-radius:8px; background:#3b82f6; color:white; font-size:16px; cursor:pointer;">
-      Click Me
+      style="width:100%; padding:12px; border:none; border-radius:8px; background:#3b82f6; color:white; font-size:16px; cursor:pointer;">
+      Generate Greeting
     </button>
 
+    <!-- Output -->
     <h2 id="msg" style="margin-top:20px; color:#38bdf8;"></h2>
 
   </div>
 
   <script>
     async function getMessage() {
+      const name = document.getElementById("nameInput").value;
+
       const res = await fetch('/api/hello');
       const data = await res.json();
-      document.getElementById("msg").innerText = data.message;
+
+      const finalMessage = name 
+        ? data.message + ", " + name + " 👋"
+        : data.message;
+
+      document.getElementById("msg").innerText = finalMessage;
     }
   </script>
 
