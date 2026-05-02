@@ -1,43 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI App</title>
+  <title>App Layout</title>
 </head>
 
-<body style="margin:0; font-family:Arial, sans-serif; background:linear-gradient(135deg,#0f172a,#1e293b); color:white; display:flex; justify-content:center; align-items:center; height:100vh;">
+<body style="margin:0; font-family:Arial; display:flex; height:100vh;">
 
-  <div style="background:#1e293b; padding:40px; border-radius:16px; width:350px; text-align:center; box-shadow:0 15px 40px rgba(0,0,0,0.6);">
-    
-    <h1 style="margin-bottom:10px;">🚀 AI App</h1>
-    <p style="color:#94a3b8; margin-bottom:20px;">Generate your greeting</p>
+  <!-- Sidebar -->
+  <div style="width:220px; background:#1e293b; color:white; padding:20px;">
+    <h3>Menu</h3>
 
-    <!-- Input -->
-    <input id="nameInput" placeholder="Enter your name"
-      style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:15px; outline:none;" />
+    <p onclick="showSection('payment')" style="cursor:pointer;">Record Payment</p>
+    <p onclick="showSection('report')" style="cursor:pointer;">Report</p>
+    <p onclick="showSection('invoice')" style="cursor:pointer;">Generate Invoice</p>
+    <p onclick="showSection('employeeReport')" style="cursor:pointer;">Employee Report</p>
+  </div>
 
-    <!-- Button -->
-    <button onclick="getMessage()" 
-      style="width:100%; padding:12px; border:none; border-radius:8px; background:#3b82f6; color:white; font-size:16px; cursor:pointer;">
-      Generate Greeting
-    </button>
+  <!-- Main Content -->
+  <div style="flex:1; padding:30px; background:#f1f5f9; color:#0f172a;">
 
-    <!-- Output -->
-    <h2 id="msg" style="margin-top:20px; color:#38bdf8;"></h2>
+    <div id="payment">
+      <!-- You will add content -->
+    </div>
+
+    <div id="report" style="display:none;">
+      <!-- You will add content -->
+    </div>
+
+    <div id="invoice" style="display:none;">
+      <!-- You will add content -->
+    </div>
+
+    <div id="employeeReport" style="display:none;">
+      <!-- You will add content -->
+    </div>
 
   </div>
 
   <script>
-    async function getMessage() {
-      const name = document.getElementById("nameInput").value;
+    function showSection(section) {
+      document.getElementById("payment").style.display = "none";
+      document.getElementById("report").style.display = "none";
+      document.getElementById("invoice").style.display = "none";
+      document.getElementById("employeeReport").style.display = "none";
 
-      const res = await fetch('/api/hello');
-      const data = await res.json();
-
-      const finalMessage = name 
-        ? data.message + ", " + name + " 👋"
-        : data.message;
-
-      document.getElementById("msg").innerText = finalMessage;
+      document.getElementById(section).style.display = "block";
     }
   </script>
 
