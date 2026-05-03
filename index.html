@@ -1,196 +1,940 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Finance Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finance Manager</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      background: #f1f5f9;
+      color: #0f172a;
+      font-size: 14px;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 230px;
+      background: #1e293b;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid #334155;
+    }
+    .sidebar-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f8fafc;
+      letter-spacing: 0.02em;
+    }
+    .sidebar-header p {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .sidebar nav { padding: 12px 0; flex: 1; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 20px;
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: #334155; color: #e2e8f0; }
+    .nav-item.active { background: #0f172a; color: #fff; border-left-color: #3b82f6; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-footer {
+      padding: 14px 20px;
+      border-top: 1px solid #334155;
+      font-size: 11px;
+      color: #475569;
+    }
+
+    /* ── Main content ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+      background: #f1f5f9;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .page-sub {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    /* ── Form elements ── */
+    label.field-label {
+      display: block;
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #0f172a;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    select:focus { border-color: #3b82f6; }
+    input[readonly] { background: #f8fafc; color: #64748b; cursor: default; }
+    .form-row { margin-bottom: 14px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 16px 0; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-blue { background: #2563eb; color: #fff; }
+    .btn-green { background: #16a34a; color: #fff; }
+    .btn-outline-green {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid #16a34a;
+      border-radius: 8px;
+      background: #f0fdf4;
+      color: #15803d;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ════════════════════════════════
+       SECTION 1 — RECORD PAYMENT
+    ════════════════════════════════ */
+    .pay-toggle {
+      display: flex;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .pay-toggle button {
+      flex: 1;
+      padding: 11px 0;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      background: #f8fafc;
+      color: #94a3b8;
+      transition: background 0.15s, color 0.15s;
+    }
+    .pay-toggle button.active-pay { background: #f0fdf4; color: #15803d; }
+    .pay-toggle button.active-rec { background: #eff6ff; color: #1d4ed8; }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-bottom: 14px;
+    }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-blue  { background: #dbeafe; color: #1d4ed8; }
+    .auth-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .auth-check input[type="checkbox"] {
+      width: 16px; height: 16px; cursor: pointer;
+      accent-color: #2563eb;
+    }
+    .auth-check label { font-size: 13px; font-weight: 500; cursor: pointer; }
+    .invoice-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #1d4ed8;
+    }
+    .invoice-hint button {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 8px;
+      border: 1px solid #bfdbfe;
+      background: transparent;
+      color: #1d4ed8;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* ════════════════════════════════
+       SECTION 2 — REPORT
+    ════════════════════════════════ */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .filter-pill {
+      padding: 7px 18px;
+      border-radius: 99px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .filter-pill.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .date-range-row {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .date-range-row label { font-size: 12px; color: #64748b; }
+    .date-range-row input { width: auto; padding: 6px 10px; }
+    .date-range-row button {
+      padding: 7px 14px; border-radius: 8px; border: 1px solid #2563eb;
+      background: transparent; color: #2563eb; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .report-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .report-topbar span { font-size: 13px; color: #64748b; }
+    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .metric-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 20px;
+    }
+    .metric-card .m-label { font-size: 12px; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
+    .metric-card .m-value { font-size: 22px; font-weight: 700; color: #0f172a; }
+    .metric-card .m-sub { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+    .net-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+      padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .net-card .m-label { font-size: 12px; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
+    .net-card .m-value { font-size: 26px; font-weight: 700; }
+    .pct-pill {
+      text-align: center; background: #f0fdf4; border-radius: 10px; padding: 12px 20px;
+    }
+    .pct-pill .pct-num { font-size: 24px; font-weight: 700; color: #15803d; }
+    .pct-pill .pct-lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .text-green { color: #15803d; }
+    .text-red   { color: #dc2626; }
+
+    /* ════════════════════════════════
+       SECTION 3 — INVOICE
+    ════════════════════════════════ */
+    .task-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .task-table th {
+      font-size: 11px; color: #94a3b8; font-weight: 600; text-align: left;
+      padding: 0 8px 10px; border-bottom: 1px solid #e2e8f0;
+    }
+    .task-table th:last-child { text-align: right; }
+    .task-table td { padding: 11px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .task-table tr:last-child td { border-bottom: none; }
+    .task-row.selected td { background: #f0fdf4; }
+    .task-row.selected .t-name { color: #15803d; font-weight: 600; }
+    .tick-box {
+      width: 18px; height: 18px; border: 1.5px solid #cbd5e1; border-radius: 5px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      background: #f8fafc; transition: all 0.15s;
+    }
+    .tick-box.checked { background: #16a34a; border-color: #16a34a; color: #fff; font-size: 12px; }
+    .total-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #eff6ff; border-radius: 10px; padding: 14px 18px; margin-top: 10px;
+    }
+    .total-banner .t-label { font-size: 14px; font-weight: 600; color: #1d4ed8; }
+    .total-banner .t-value { font-size: 22px; font-weight: 700; color: #1d4ed8; }
+    .balance-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #fff7ed; border-radius: 10px; padding: 14px 18px; margin-top: 8px;
+    }
+    .balance-banner .t-label { font-size: 14px; font-weight: 600; color: #c2410c; }
+    .balance-banner .t-value { font-size: 22px; font-weight: 700; color: #c2410c; }
+    .due-grid {
+      display: grid; grid-template-columns: 1fr 80px 1fr; gap: 10px; align-items: end;
+    }
+    .due-grid .mid-lbl {
+      font-size: 12px; color: #94a3b8; text-align: center; padding-bottom: 9px; font-weight: 500;
+    }
+
+    /* ════════════════════════════════
+       SECTION 4 — EMPLOYEE REPORT
+    ════════════════════════════════ */
+    .emp-meta {
+      display: flex; align-items: center; gap: 14px;
+      padding-bottom: 16px; margin-bottom: 16px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .emp-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
+    }
+    .emp-meta .e-name { font-size: 15px; font-weight: 600; color: #0f172a; }
+    .emp-meta .e-role { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .sum-box { background: #f8fafc; border-radius: 8px; padding: 12px 14px; }
+    .sum-box .s-lbl { font-size: 11px; color: #94a3b8; margin-bottom: 4px; font-weight: 500; }
+    .sum-box .s-val { font-size: 20px; font-weight: 700; color: #0f172a; }
+    .task-list { display: flex; flex-direction: column; gap: 8px; }
+    .task-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 14px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff;
+    }
+    .task-item .ti-left { display: flex; align-items: center; gap: 10px; }
+    .ti-name { font-size: 13px; font-weight: 500; color: #0f172a; }
+    .ti-date { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .status-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+    }
+    .badge-completed   { background: #dcfce7; color: #15803d; }
+    .badge-inprogress  { background: #fef9c3; color: #a16207; }
+    .badge-pending     { background: #dbeafe; color: #1d4ed8; }
+    .ti-amt { font-size: 13px; font-weight: 600; color: #0f172a; min-width: 70px; text-align: right; }
+    .empty-state { text-align: center; padding: 28px; color: #94a3b8; font-size: 13px; }
+  </style>
 </head>
+<body>
 
-<body style="margin:0; font-family:Arial, sans-serif; background:#eef2f7; color:#111827;">
+<!-- ══════════ SIDEBAR ══════════ -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h2>Finance Manager</h2>
+    <p>Accounts &amp; Billing</p>
+  </div>
+  <nav>
+    <div class="nav-item active" onclick="showSection('payment', this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Record Payment
+    </div>
+    <div class="nav-item" onclick="showSection('report', this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Report
+    </div>
+    <div class="nav-item" onclick="showSection('invoice', this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Generate Invoice
+    </div>
+    <div class="nav-item" onclick="showSection('employeeReport', this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg>
+      Employee Report
+    </div>
+  </nav>
+  <div class="sidebar-footer">v1.0 &nbsp;·&nbsp; Finance Suite</div>
+</div>
 
-  <div style="display:flex; min-height:100vh;">
+<!-- ══════════ MAIN ══════════ -->
+<div class="main">
 
-    <!-- Sidebar -->
-    <div style="width:250px; background:#0f172a; color:white; padding:24px;">
-      <h2 style="margin-top:0;">Finance App</h2>
+  <!-- ─── SECTION 1: RECORD PAYMENT ─── -->
+  <div id="payment" class="section active">
+    <p class="page-title">Record Payment</p>
+    <p class="page-sub">Record a payable or receivable transaction.</p>
 
-      <p onclick="showSection('payment')" style="cursor:pointer; padding:12px; border-radius:8px; background:#2563eb;">
-        Record Payment
-      </p>
-
-      <p onclick="showSection('report')" style="cursor:pointer; padding:12px; border-radius:8px;">
-        Report
-      </p>
-
-      <p onclick="showSection('invoice')" style="cursor:pointer; padding:12px; border-radius:8px;">
-        Generate Invoice
-      </p>
-
-      <p onclick="showSection('employeeReport')" style="cursor:pointer; padding:12px; border-radius:8px;">
-        Employee Report
-      </p>
+    <div class="pay-toggle">
+      <button id="btn-pay" class="active-pay" onclick="switchPay('payable')">Payables</button>
+      <button id="btn-rec" onclick="switchPay('receivable')">Receivables</button>
     </div>
 
-    <!-- Main Content -->
-    <div style="flex:1; padding:35px;">
-
-      <h1 style="margin-top:0;">Dashboard</h1>
-      <p style="color:#64748b;">Manage payments, receivables, payables, reports, invoices, and employees.</p>
-
-      <!-- Record Payment Section -->
-      <div id="payment" style="background:white; padding:28px; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,0.08); max-width:760px;">
-
-        <h2 style="margin-top:0;">Record Payment</h2>
-
-        <div style="display:flex; gap:15px; margin-bottom:25px;">
-          <button onclick="showPaymentType('payable')" style="flex:1; padding:14px; border:none; border-radius:10px; background:#2563eb; color:white; font-size:16px; cursor:pointer;">
-            Payable
-          </button>
-
-          <button onclick="showPaymentType('receivable')" style="flex:1; padding:14px; border:none; border-radius:10px; background:#16a34a; color:white; font-size:16px; cursor:pointer;">
-            Receivable
-          </button>
-        </div>
-
-        <!-- Payable Form -->
-        <div id="payableForm">
-          <h3>Payable Payment</h3>
-
-          <label>Vendor Name</label>
-          <input type="text" placeholder="Enter vendor name" style="width:100%; padding:12px; margin:8px 0 18px; border:1px solid #cbd5e1; border-radius:8px;">
-
-          <label>Outstanding Amount</label>
-          <input type="text" value="₹25,000" readonly style="width:100%; padding:12px; margin:8px 0 18px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc;">
-
-          <label>Amount to Record</label>
-          <input type="number" placeholder="Enter amount" style="width:100%; padding:12px; margin:8px 0 18px; border:1px solid #cbd5e1; border-radius:8px;">
-
-          <label>Transfer Mode</label>
-          <select style="width:100%; padding:12px; margin:8px 0 24px; border:1px solid #cbd5e1; border-radius:8px;">
-            <option>Cash</option>
-            <option>Card</option>
-            <option>Bank</option>
-          </select>
-
-          <button style="padding:13px 24px; border:none; border-radius:8px; background:#0f172a; color:white; cursor:pointer;">
-            Authorize Payment
-          </button>
-        </div>
-
-        <!-- Receivable Form -->
-        <div id="receivableForm" style="display:none;">
-          <h3>Receivable Payment</h3>
-
-          <label>Customer Name</label>
-          <input type="text" placeholder="Enter customer name" style="width:100%; padding:12px; margin:8px 0 18px; border:1px solid #cbd5e1; border-radius:8px;">
-
-          <label>Outstanding Amount</label>
-          <input type="text" value="₹18,000" readonly style="width:100%; padding:12px; margin:8px 0 18px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc;">
-
-          <label>Amount to Record</label>
-          <input type="number" placeholder="Enter amount" style="width:100%; padding:12px; margin:8px 0 18px; border:1px solid #cbd5e1; border-radius:8px;">
-
-          <label>Mode of Transfer</label>
-          <select style="width:100%; padding:12px; margin:8px 0 24px; border:1px solid #cbd5e1; border-radius:8px;">
-            <option>Cash</option>
-            <option>Card</option>
-            <option>Bank</option>
-          </select>
-
-          <button style="padding:13px 24px; border:none; border-radius:8px; background:#0f172a; color:white; cursor:pointer;">
-            Authorize Payment
-          </button>
-
-          <button onclick="showSection('invoice')" style="padding:13px 24px; border:none; border-radius:8px; background:#16a34a; color:white; cursor:pointer; margin-left:10px;">
-            Generate Invoice
-          </button>
-        </div>
-
+    <!-- PAYABLE FORM -->
+    <div id="form-payable" class="card">
+      <span class="badge badge-green">Payable</span>
+      <div class="form-row">
+        <label class="field-label">Vendor name</label>
+        <input type="text" id="pay-vendor" placeholder="Enter vendor name" oninput="autoOutstanding('pay-vendor','pay-outstanding','pay')" />
       </div>
-
-      <!-- Report Section -->
-      <div id="report" style="display:none; background:white; padding:28px; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,0.08); max-width:760px;">
-        <h2>Report</h2>
-
-        <div style="display:flex; gap:16px; flex-wrap:wrap;">
-          <div style="background:#eff6ff; padding:20px; border-radius:10px; flex:1;">
-            <p style="color:#64748b;">Monthly Revenue</p>
-            <h2 style="color:#2563eb;">₹50,000</h2>
-          </div>
-
-          <div style="background:#fef2f2; padding:20px; border-radius:10px; flex:1;">
-            <p style="color:#64748b;">Expenses</p>
-            <h2 style="color:#dc2626;">₹20,000</h2>
-          </div>
-        </div>
+      <div class="form-row">
+        <label class="field-label">Outstanding amount</label>
+        <input type="text" id="pay-outstanding" readonly placeholder="Auto-populated on vendor entry" />
       </div>
-
-      <!-- Invoice Section -->
-      <div id="invoice" style="display:none; background:white; padding:28px; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,0.08); max-width:600px;">
-        <h2>Generate Invoice</h2>
-
-        <label>Customer Name</label>
-        <input type="text" placeholder="Enter customer name" style="width:100%; padding:12px; margin:8px 0 18px; border:1px solid #cbd5e1; border-radius:8px;">
-
-        <label>Invoice Amount</label>
-        <input type="number" placeholder="Enter amount" style="width:100%; padding:12px; margin:8px 0 18px; border:1px solid #cbd5e1; border-radius:8px;">
-
-        <label>Payment Mode</label>
-        <select style="width:100%; padding:12px; margin:8px 0 24px; border:1px solid #cbd5e1; border-radius:8px;">
+      <div class="form-row">
+        <label class="field-label">Amount to record (₹)</label>
+        <input type="number" id="pay-amount" placeholder="Enter amount" />
+      </div>
+      <div class="form-row">
+        <label class="field-label">Transfer mode</label>
+        <select id="pay-mode">
+          <option value="" disabled selected>Select transfer mode</option>
           <option>Cash</option>
           <option>Card</option>
           <option>Bank</option>
         </select>
-
-        <button style="padding:13px 24px; border:none; border-radius:8px; background:#16a34a; color:white; cursor:pointer;">
-          Create Invoice
-        </button>
       </div>
-
-      <!-- Employee Report Section -->
-      <div id="employeeReport" style="display:none; background:white; padding:28px; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,0.08); max-width:760px;">
-        <h2>Employee Report</h2>
-
-        <div style="display:flex; gap:16px; flex-wrap:wrap;">
-          <div style="background:#f8fafc; padding:20px; border-radius:10px; flex:1;">
-            <p style="color:#64748b;">Total Employees</p>
-            <h2>25</h2>
-          </div>
-
-          <div style="background:#ecfdf5; padding:20px; border-radius:10px; flex:1;">
-            <p style="color:#64748b;">Active Employees</p>
-            <h2 style="color:#16a34a;">22</h2>
-          </div>
-
-          <div style="background:#fff7ed; padding:20px; border-radius:10px; flex:1;">
-            <p style="color:#64748b;">On Leave</p>
-            <h2 style="color:#ea580c;">3</h2>
-          </div>
-        </div>
+      <hr class="divider" />
+      <div class="auth-check">
+        <input type="checkbox" id="pay-auth" />
+        <label for="pay-auth">Authorized payment — I confirm this payment is approved</label>
       </div>
+      <button class="btn-primary btn-green" onclick="submitForm('pay-auth','Payment')">Record Payment</button>
+    </div>
 
+    <!-- RECEIVABLE FORM -->
+    <div id="form-receivable" class="card" style="display:none;">
+      <span class="badge badge-blue">Receivable</span>
+      <div class="form-row">
+        <label class="field-label">Customer name</label>
+        <input type="text" id="rec-customer" placeholder="Enter customer name" oninput="autoOutstanding('rec-customer','rec-outstanding','rec')" />
+      </div>
+      <div class="form-row">
+        <label class="field-label">Outstanding amount</label>
+        <input type="text" id="rec-outstanding" readonly placeholder="Auto-populated on customer entry" />
+      </div>
+      <div class="form-row">
+        <label class="field-label">Amount to record (₹)</label>
+        <input type="number" id="rec-amount" placeholder="Enter amount" />
+      </div>
+      <div class="form-row">
+        <label class="field-label">Mode of transfer</label>
+        <select id="rec-mode">
+          <option value="" disabled selected>Select transfer mode</option>
+          <option>Cash</option>
+          <option>Card</option>
+          <option>Bank</option>
+        </select>
+      </div>
+      <hr class="divider" />
+      <div class="auth-check">
+        <input type="checkbox" id="rec-auth" />
+        <label for="rec-auth">Authorized payment — I confirm this receipt is approved</label>
+      </div>
+      <button class="btn-primary btn-blue" onclick="submitForm('rec-auth','Receipt')">Record Receipt</button>
+      <div class="invoice-hint">
+        <span>For receivables, you can generate an invoice for this transaction.</span>
+        <button onclick="showSection('invoice', document.querySelectorAll('.nav-item')[2])">Generate Invoice &rarr;</button>
+      </div>
     </div>
   </div>
 
-  <script>
-    function showSection(section) {
-      document.getElementById("payment").style.display = "none";
-      document.getElementById("report").style.display = "none";
-      document.getElementById("invoice").style.display = "none";
-      document.getElementById("employeeReport").style.display = "none";
+  <!-- ─── SECTION 2: REPORT ─── -->
+  <div id="report" class="section">
+    <p class="page-title">Report</p>
+    <p class="page-sub">View financial summaries by period.</p>
 
-      document.getElementById(section).style.display = "block";
+    <div class="filter-bar">
+      <button class="filter-pill active" id="fp-today" onclick="setReportFilter('today')">Today</button>
+      <button class="filter-pill" id="fp-monthly" onclick="setReportFilter('monthly')">Monthly</button>
+      <div class="date-range-row">
+        <label>From</label>
+        <input type="date" id="r-from" />
+        <label>To</label>
+        <input type="date" id="r-to" />
+        <button onclick="setReportFilter('range')">Apply</button>
+      </div>
+    </div>
+
+    <div class="report-topbar">
+      <span id="r-period-label">Showing: Today</span>
+      <button class="btn-outline-green" onclick="alert('Downloading Excel report...')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Report (Excel)
+      </button>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="m-label">Total Revenue</div>
+        <div class="m-value" id="r-revenue">₹0</div>
+        <div class="m-sub" id="r-rev-sub">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Government Fees Paid</div>
+        <div class="m-value" id="r-govt">₹0</div>
+        <div class="m-sub">Tax &amp; regulatory payments</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Salary Paid</div>
+        <div class="m-value" id="r-salary">₹0</div>
+        <div class="m-sub">Employee payroll</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Vendor Amount Paid</div>
+        <div class="m-value" id="r-vendor">₹0</div>
+        <div class="m-sub">Supplier &amp; vendor payments</div>
+      </div>
+    </div>
+
+    <div class="net-card">
+      <div>
+        <div class="m-label">Net Profit</div>
+        <div class="m-value text-green" id="r-net">₹0</div>
+        <div class="m-sub">Revenue minus all expenses</div>
+      </div>
+      <div class="pct-pill">
+        <div class="pct-num text-green" id="r-pct">0%</div>
+        <div class="pct-lbl">Profit margin</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 3: GENERATE INVOICE ─── -->
+  <div id="invoice" class="section">
+    <p class="page-title">Generate Invoice</p>
+    <p class="page-sub">Select a client and tasks to build the invoice.</p>
+
+    <div class="card">
+      <div class="section-label">Client details</div>
+      <div class="form-row">
+        <label class="field-label">Client name</label>
+        <select id="inv-client" onchange="loadInvClient()">
+          <option value="" disabled selected>Select client</option>
+          <option value="XY">XY Enterprises</option>
+          <option value="AB">AB Solutions</option>
+          <option value="PQ">PQ Traders</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card" id="inv-tasks-card" style="display:none;">
+      <div class="section-label">Select tasks</div>
+      <table class="task-table">
+        <thead>
+          <tr>
+            <th style="width:32px;"></th>
+            <th>Task</th>
+            <th style="text-align:right;">Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="inv-task-body"></tbody>
+      </table>
+    </div>
+
+    <div class="card" id="inv-calc-card" style="display:none;">
+      <div class="section-label">Invoice summary</div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <span style="font-size:13px;color:#64748b;">Subtotal</span>
+        <span style="font-size:16px;font-weight:700;color:#0f172a;" id="inv-subtotal">₹0</span>
+      </div>
+
+      <div class="two-col" style="margin-bottom:14px;">
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="field-label">Discount amount (₹)</label>
+          <input type="number" id="inv-discount" value="0" oninput="invRecalc()" placeholder="0" />
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="field-label">Net amount (₹)</label>
+          <input type="text" id="inv-net" readonly />
+        </div>
+      </div>
+
+      <div class="three-col" style="margin-bottom:14px;">
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="field-label">VAT (%)</label>
+          <input type="number" id="inv-vat-pct" value="10" oninput="invRecalc()" />
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="field-label">VAT amount (₹)</label>
+          <input type="text" id="inv-vat-amt" readonly />
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="field-label">Advance paid (₹)</label>
+          <input type="text" id="inv-advance" readonly />
+        </div>
+      </div>
+
+      <div class="total-banner">
+        <span class="t-label">Total amount</span>
+        <span class="t-value" id="inv-total">₹0</span>
+      </div>
+      <div class="balance-banner">
+        <span class="t-label">Balance due</span>
+        <span class="t-value" id="inv-balance">₹0</span>
+      </div>
+
+      <hr class="divider" />
+      <div class="section-label">Due date</div>
+      <div class="due-grid">
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="field-label">Number of days</label>
+          <input type="number" id="inv-days" placeholder="e.g. 30" oninput="calcDueDate()" min="1" />
+        </div>
+        <div class="mid-lbl">days from</div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="field-label">Start date</label>
+          <input type="date" id="inv-start-date" oninput="calcDueDate()" />
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:10px;">
+        <label class="field-label">Due date (auto-calculated)</label>
+        <input type="text" id="inv-due-date" readonly placeholder="Select days and start date above" />
+      </div>
+
+      <button class="btn-primary btn-blue" onclick="alert('Invoice generated successfully!')">Generate Invoice</button>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 4: EMPLOYEE REPORT ─── -->
+  <div id="employeeReport" class="section">
+    <p class="page-title">Employee Report</p>
+    <p class="page-sub">View tasks completed by an employee within a date range.</p>
+
+    <div class="card">
+      <div class="section-label">Filter</div>
+      <div class="form-row">
+        <label class="field-label">Employee name</label>
+        <select id="emp-select">
+          <option value="" disabled selected>Select employee</option>
+          <option value="riya">Riya Sharma</option>
+          <option value="arjun">Arjun Mehta</option>
+          <option value="priya">Priya Nair</option>
+          <option value="rahul">Rahul Verma</option>
+        </select>
+      </div>
+      <div class="two-col">
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="field-label">From date</label>
+          <input type="date" id="emp-from" />
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="field-label">To date</label>
+          <input type="date" id="emp-to" />
+        </div>
+      </div>
+      <button class="btn-primary btn-blue" style="margin-top:14px;" onclick="generateEmpReport()">Generate Report</button>
+    </div>
+
+    <div class="card" id="emp-report-output" style="display:none;">
+      <div class="emp-meta">
+        <div class="emp-avatar" id="emp-avatar"></div>
+        <div>
+          <div class="e-name" id="emp-name-out"></div>
+          <div class="e-role" id="emp-role-out"></div>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="sum-box">
+          <div class="s-lbl">Total tasks</div>
+          <div class="s-val" id="es-total">0</div>
+        </div>
+        <div class="sum-box">
+          <div class="s-lbl">Completed</div>
+          <div class="s-val text-green" id="es-completed">0</div>
+        </div>
+        <div class="sum-box">
+          <div class="s-lbl">Total value</div>
+          <div class="s-val" id="es-value">₹0</div>
+        </div>
+      </div>
+      <hr class="divider" />
+      <div class="section-label">Task breakdown</div>
+      <div class="task-list" id="emp-task-list"></div>
+      <button class="btn-outline-green" style="width:100%;margin-top:14px;justify-content:center;" onclick="alert('Downloading employee report...')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Report (Excel)
+      </button>
+    </div>
+  </div>
+
+</div><!-- /.main -->
+
+<script>
+  /* ── Navigation ── */
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (el) el.classList.add('active');
+  }
+
+  /* ── Section 1: Payment ── */
+  function switchPay(mode) {
+    const isPay = mode === 'payable';
+    document.getElementById('form-payable').style.display   = isPay ? 'block' : 'none';
+    document.getElementById('form-receivable').style.display = isPay ? 'none' : 'block';
+    document.getElementById('btn-pay').className = isPay ? 'active-pay' : '';
+    document.getElementById('btn-rec').className = isPay ? '' : 'active-rec';
+  }
+
+  const outstandingMap = {
+    pay: { abc: '₹12,500', xyz: '₹8,200', vendor: '₹31,000' },
+    rec: { john: '₹9,800', alpha: '₹22,400', client: '₹15,750' }
+  };
+
+  function autoOutstanding(inputId, outputId, type) {
+    const val = document.getElementById(inputId).value.toLowerCase().trim();
+    const map = outstandingMap[type];
+    document.getElementById(outputId).value = map[val] ||
+      (val.length > 1 ? '₹' + (Math.floor(Math.random() * 45000) + 5000).toLocaleString('en-IN') : '');
+  }
+
+  function submitForm(checkId, label) {
+    if (!document.getElementById(checkId).checked) {
+      alert('Please authorize the ' + label.toLowerCase() + ' before recording.');
+      return;
     }
+    alert(label + ' recorded successfully!');
+  }
 
-    function showPaymentType(type) {
-      document.getElementById("payableForm").style.display = "none";
-      document.getElementById("receivableForm").style.display = "none";
+  /* ── Section 2: Report ── */
+  const reportData = {
+    today:   { revenue: 42500,  govt: 3200,  salary: 0,     vendor: 8100  },
+    monthly: { revenue: 318000, govt: 21000, salary: 85000, vendor: 54000 },
+    range:   { revenue: 97000,  govt: 8500,  salary: 28000, vendor: 17500 }
+  };
 
-      if (type === "payable") {
-        document.getElementById("payableForm").style.display = "block";
-      } else {
-        document.getElementById("receivableForm").style.display = "block";
-      }
+  function fmtINR(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
+
+  function renderReport(key, label) {
+    const d = reportData[key];
+    const expenses = d.govt + d.salary + d.vendor;
+    const net = d.revenue - expenses;
+    const pct = d.revenue > 0 ? Math.round((net / d.revenue) * 100) : 0;
+    const pos = net >= 0;
+    document.getElementById('r-revenue').textContent = fmtINR(d.revenue);
+    document.getElementById('r-govt').textContent    = fmtINR(d.govt);
+    document.getElementById('r-salary').textContent  = fmtINR(d.salary);
+    document.getElementById('r-vendor').textContent  = fmtINR(d.vendor);
+    document.getElementById('r-rev-sub').textContent = 'Total incoming for ' + label;
+    const netEl = document.getElementById('r-net');
+    const pctEl = document.getElementById('r-pct');
+    netEl.textContent = fmtINR(net);
+    netEl.className   = 'm-value ' + (pos ? 'text-green' : 'text-red');
+    pctEl.textContent = pct + '%';
+    pctEl.className   = 'pct-num ' + (pos ? 'text-green' : 'text-red');
+    document.getElementById('r-period-label').textContent = 'Showing: ' + label;
+  }
+
+  function setReportFilter(type) {
+    ['today','monthly'].forEach(id => {
+      document.getElementById('fp-' + id).classList.toggle('active', id === type);
+    });
+    if (type === 'range') {
+      const f = document.getElementById('r-from').value;
+      const t = document.getElementById('r-to').value;
+      renderReport('range', (f && t) ? f + ' → ' + t : 'Custom range');
+    } else {
+      renderReport(type, type === 'today' ? 'Today' : 'This Month');
     }
-  </script>
+  }
 
+  renderReport('today', 'Today');
+
+  /* ── Section 3: Invoice ── */
+  const invClients = {
+    XY: { tasks: [{ name: 'Task 1', amount: 280 }, { name: 'Task 2', amount: 360 }], advance: 200 },
+    AB: { tasks: [{ name: 'Consulting', amount: 5000 }, { name: 'Design', amount: 3200 }, { name: 'Support', amount: 1500 }], advance: 1000 },
+    PQ: { tasks: [{ name: 'Delivery', amount: 750 }, { name: 'Installation', amount: 1250 }], advance: 500 }
+  };
+  let invSelected = new Set();
+  let invClient   = null;
+
+  function loadInvClient() {
+    const key = document.getElementById('inv-client').value;
+    if (!key) return;
+    invClient   = invClients[key];
+    invSelected = new Set();
+    const tbody = document.getElementById('inv-task-body');
+    tbody.innerHTML = '';
+    invClient.tasks.forEach((t, i) => {
+      const tr = document.createElement('tr');
+      tr.className = 'task-row';
+      tr.id = 'inv-row-' + i;
+      tr.innerHTML = `<td><div class="tick-box" id="inv-tick-${i}" onclick="invToggle(${i})"></div></td>
+        <td class="t-name" style="font-size:13px;">${t.name}</td>
+        <td style="text-align:right;font-size:13px;font-weight:500;">${fmtINR(t.amount)}</td>`;
+      tbody.appendChild(tr);
+    });
+    document.getElementById('inv-tasks-card').style.display = 'block';
+    document.getElementById('inv-calc-card').style.display  = 'none';
+  }
+
+  function invToggle(i) {
+    invSelected.has(i) ? invSelected.delete(i) : invSelected.add(i);
+    document.getElementById('inv-tick-' + i).className = 'tick-box' + (invSelected.has(i) ? ' checked' : '');
+    document.getElementById('inv-row-' + i).className  = 'task-row' + (invSelected.has(i) ? ' selected' : '');
+    invSelected.has(i) && (document.getElementById('inv-tick-' + i).textContent = invSelected.has(i) ? '✓' : '');
+    document.getElementById('inv-calc-card').style.display = invSelected.size > 0 ? 'block' : 'none';
+    invRecalc();
+  }
+
+  function invRecalc() {
+    if (!invClient) return;
+    let sub = 0;
+    invSelected.forEach(i => { sub += invClient.tasks[i].amount; });
+    const disc    = parseFloat(document.getElementById('inv-discount').value) || 0;
+    const net     = sub - disc;
+    const vatPct  = parseFloat(document.getElementById('inv-vat-pct').value) || 0;
+    const vatAmt  = Math.round(net * vatPct / 100);
+    const total   = net + vatAmt;
+    const advance = invClient.advance;
+    const balance = Math.max(0, total - advance);
+    document.getElementById('inv-subtotal').textContent = fmtINR(sub);
+    document.getElementById('inv-net').value     = fmtINR(net);
+    document.getElementById('inv-vat-amt').value = fmtINR(vatAmt);
+    document.getElementById('inv-advance').value = fmtINR(advance);
+    document.getElementById('inv-total').textContent   = fmtINR(total);
+    document.getElementById('inv-balance').textContent = fmtINR(balance);
+  }
+
+  function calcDueDate() {
+    const days  = parseInt(document.getElementById('inv-days').value);
+    const start = document.getElementById('inv-start-date').value;
+    if (!days || !start) return;
+    const d = new Date(start);
+    d.setDate(d.getDate() + days);
+    document.getElementById('inv-due-date').value = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  /* ── Section 4: Employee Report ── */
+  const empData = {
+    riya:  { name: 'Riya Sharma',  role: 'Accounts Executive', color: '#dbeafe', text: '#1d4ed8', initials: 'RS',
+      tasks: [
+        { name: 'Invoice reconciliation – Client XY', date: '2026-04-02', status: 'completed',  amount: 4200 },
+        { name: 'Payment follow-up – AB Solutions',   date: '2026-04-05', status: 'completed',  amount: 1800 },
+        { name: 'Monthly ledger update',              date: '2026-04-10', status: 'completed',  amount: 2500 },
+        { name: 'GST filing – Q4',                   date: '2026-04-18', status: 'inprogress', amount: 3100 },
+        { name: 'Vendor payment',                     date: '2026-04-20', status: 'cancelled',  amount: 0    },
+        { name: 'Client AR report preparation',       date: '2026-04-25', status: 'pending',    amount: 1600 },
+        { name: 'Outsourced audit task',              date: '2026-04-28', status: 'vendor',     amount: 0    },
+      ]
+    },
+    arjun: { name: 'Arjun Mehta',  role: 'Senior Accountant', color: '#dcfce7', text: '#15803d', initials: 'AM',
+      tasks: [
+        { name: 'Bank reconciliation – April',        date: '2026-04-03', status: 'completed',  amount: 3500 },
+        { name: 'Payroll processing',                 date: '2026-04-07', status: 'completed',  amount: 6200 },
+        { name: 'TDS return filing',                  date: '2026-04-14', status: 'inprogress', amount: 2900 },
+        { name: 'Vendor invoice match',               date: '2026-04-17', status: 'cancelled',  amount: 0    },
+        { name: 'Client billing – PQ Traders',        date: '2026-04-22', status: 'completed',  amount: 4100 },
+        { name: 'Vendor-handled compliance task',     date: '2026-04-26', status: 'vendor',     amount: 0    },
+      ]
+    },
+    priya: { name: 'Priya Nair',   role: 'Billing Specialist', color: '#fce7f3', text: '#9d174d', initials: 'PN',
+      tasks: [
+        { name: 'Invoice generation – XY batch',     date: '2026-04-01', status: 'completed',  amount: 5100 },
+        { name: 'Outstanding follow-up calls',        date: '2026-04-08', status: 'completed',  amount: 800  },
+        { name: 'Credit note issuance – AB',          date: '2026-04-13', status: 'pending',    amount: 1200 },
+        { name: 'Duplicate entry correction',         date: '2026-04-19', status: 'completed',  amount: 600  },
+        { name: 'Task cancelled mid-process',         date: '2026-04-21', status: 'cancelled',  amount: 0    },
+      ]
+    },
+    rahul: { name: 'Rahul Verma',  role: 'Finance Executive', color: '#fef9c3', text: '#a16207', initials: 'RV',
+      tasks: [
+        { name: 'Cash flow report – April',           date: '2026-04-04', status: 'completed',  amount: 2200 },
+        { name: 'Expense audit',                      date: '2026-04-09', status: 'inprogress', amount: 1900 },
+        { name: 'Budget variance analysis',           date: '2026-04-15', status: 'completed',  amount: 3300 },
+        { name: 'Vendor payment – outsourced',        date: '2026-04-18', status: 'vendor',     amount: 0    },
+        { name: 'MIS report preparation',             date: '2026-04-24', status: 'pending',    amount: 1400 },
+        { name: 'Cancelled reconciliation task',      date: '2026-04-27', status: 'cancelled',  amount: 0    },
+      ]
+    }
+  };
+
+  const EXCLUDED_STATUS = ['cancelled', 'vendor'];
+
+  function generateEmpReport() {
+    const key  = document.getElementById('emp-select').value;
+    const from = document.getElementById('emp-from').value;
+    const to   = document.getElementById('emp-to').value;
+    if (!key)        { alert('Please select an employee.'); return; }
+    if (!from || !to){ alert('Please select a date range.'); return; }
+
+    const emp = empData[key];
+    const tasks = emp.tasks.filter(t => !EXCLUDED_STATUS.includes(t.status) && t.date >= from && t.date <= to);
+
+    const avatar = document.getElementById('emp-avatar');
+    avatar.textContent       = emp.initials;
+    avatar.style.background  = emp.color;
+    avatar.style.color       = emp.text;
+    document.getElementById('emp-name-out').textContent = emp.name;
+    document.getElementById('emp-role-out').textContent = emp.role + ' · ' + from + ' → ' + to;
+
+    const completed = tasks.filter(t => t.status === 'completed').length;
+    const totalVal  = tasks.reduce((s, t) => s + t.amount, 0);
+    document.getElementById('es-total').textContent     = tasks.length;
+    document.getElementById('es-completed').textContent = completed;
+    document.getElementById('es-value').textContent     = fmtINR(totalVal);
+
+    const list = document.getElementById('emp-task-list');
+    if (tasks.length === 0) {
+      list.innerHTML = '<div class="empty-state">No valid tasks found for this period.</div>';
+    } else {
+      const dotColor   = { completed: '#15803d', inprogress: '#a16207', pending: '#2563eb' };
+      const badgeClass = { completed: 'badge-completed', inprogress: 'badge-inprogress', pending: 'badge-pending' };
+      const badgeLabel = { completed: 'Completed', inprogress: 'In progress', pending: 'Pending' };
+      list.innerHTML = tasks.map(t => `
+        <div class="task-item">
+          <div class="ti-left">
+            <div class="dot" style="background:${dotColor[t.status]};"></div>
+            <div>
+              <div class="ti-name">${t.name}</div>
+              <div class="ti-date">${new Date(t.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span class="status-badge ${badgeClass[t.status]}">${badgeLabel[t.status]}</span>
+            <div class="ti-amt">${t.amount > 0 ? fmtINR(t.amount) : '—'}</div>
+          </div>
+        </div>`).join('');
+    }
+    document.getElementById('emp-report-output').style.display = 'block';
+  }
+</script>
 </body>
 </html>
